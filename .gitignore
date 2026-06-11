@@ -1,0 +1,69 @@
+# ========================
+# Python & Core
+# ========================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# ========================
+# Virtual Environments
+# ========================
+venv/
+env/
+.venv/
+
+# ========================
+# Environment Variables
+# ========================
+.env
+*.env
+
+# ========================
+# Django
+# ========================
+db.sqlite3
+media/
+staticfiles/
+
+# ========================
+# IDE & OS
+# ========================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ========================
+# Logs & Tests
+# ========================
+*.log
+.coverage
+htmlcov/
+.mypy_cache/
+
+# ========================
+# Jupyter Notebooks
+# ========================
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+
+# ========================
+# Data Science & Machine Learning 
+# ========================
+*.csv
+*.tsv
+*.xlsx
+*.parquet
+
+
+*.pkl
+*.joblib
+*.h5
+*.model
+
+
+data/*
+!data/.gitkeep
+models/*
+!models/.gitkeep
