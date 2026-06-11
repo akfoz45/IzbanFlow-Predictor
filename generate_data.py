@@ -36,5 +36,10 @@ def generate_synthetic_data(start_date='2025-05-01', days=365):
 
     return df
 
-df_izban = generate_synthetic_data()
-print(df_izban["density_class"].value_counts())
+if __name__ == "__main__":
+    print("Synthetic data is being generated...")
+    df_izban = generate_synthetic_data()
+    
+    df_izban.to_csv("izban_data.csv", index=False)
+
+    print(f"Data successfully saved as 'izban_data.csv'! Total rows: {len(df_izban)}")
