@@ -57,7 +57,6 @@ htmlcov/
 *.parquet
 
 
-*.pkl
 *.joblib
 *.h5
 *.model
