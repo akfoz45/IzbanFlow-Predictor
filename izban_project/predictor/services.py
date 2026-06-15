@@ -28,8 +28,8 @@ def get_density_prediction(time_of_day, day_of_week, weekend, heat, rains_mm, st
     df_input["time_of_day"] = int(time_of_day)
     df_input["day_of_week"] = int(day_of_week)
     df_input["weekend"] = int(weekend)
-    df_input["heat"] = int(heat)
-    df_input["rains_mm"] = int(rains_mm)
+    df_input["heat"] = float(heat)
+    df_input["rains_mm"] = float(rains_mm)
 
     station_col = f"station_{station}"
 
