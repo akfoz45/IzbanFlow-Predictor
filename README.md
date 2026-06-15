@@ -15,7 +15,7 @@ The project features a modular software architecture covering all stages from sy
 
 User interface featuring a revamped glassmorphic design, dynamic state icons, and asynchronous loading animations:
 
-![İZBAN Density Prediction System Interface](izban_preview.png)
+![İZBAN Density Prediction System Interface](izban_preview.PNG)
 
 ---
 
