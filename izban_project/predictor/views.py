@@ -50,3 +50,6 @@ def predict_density_api(request):
             'status': 'error',
             'message': f'A server error occurred: {str(e)}'
         }, status=500)
+    
+def index_view(request):
+    return render(request, 'predictor/index.html')

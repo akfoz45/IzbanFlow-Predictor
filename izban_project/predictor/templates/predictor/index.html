@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İZBAN Yapay Zeka Yoğunluk Tahmini</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 20px 0;
+        }
+        .prediction-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.5);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        .prediction-card:hover {
+            transform: translateY(-5px);
+        }
+        .card-header {
+            background: linear-gradient(to right, #2b5876, #4e4376);
+            color: white;
+            padding: 25px 20px;
+            border-bottom: none;
+            text-align: center;
+        }
+        .card-header h3 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.6rem;
+            letter-spacing: 0.5px;
+        }
+        .card-header p {
+            margin: 5px 0 0 0;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 0.4rem;
+            font-size: 0.95rem;
+        }
+        .input-group-text {
+            background-color: transparent;
+            border-right: none;
+            color: #2b5876;
+            border-radius: 10px 0 0 10px;
+        }
+        .form-control, .form-select {
+            border-radius: 0 10px 10px 0;
+            padding: 12px;
+            border-left: none;
+            transition: all 0.3s;
+            background-color: transparent;
+        }
+        .form-control:focus, .form-select:focus {
+            box-shadow: none;
+            border-color: #ced4da;
+        }
+        .input-group:focus-within {
+            box-shadow: 0 0 0 0.25rem rgba(43, 88, 118, 0.15);
+            border-radius: 10px;
+        }
+        .input-group:focus-within .input-group-text,
+        .input-group:focus-within .form-control,
+        .input-group:focus-within .form-select {
+            border-color: #2b5876;
+        }
+        .btn-predict {
+            background: linear-gradient(to right, #2b5876, #4e4376);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 14px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 15px;
+        }
+        .btn-predict:hover {
+            background: linear-gradient(to right, #1a3a4f, #322b4d);
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            color: white;
+        }
+        .result-box {
+            display: none;
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 25px;
+            animation: fadeIn 0.5s ease-in-out;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .sakin { background: linear-gradient(135deg, #d1e7dd, #a3cfbb); color: #0f5132; border: 1px solid #badbcc; }
+        .normal { background: linear-gradient(135deg, #fff3cd, #ffe69c); color: #664d03; border: 1px solid #ffecb5; }
+        .yogun { background: linear-gradient(135deg, #f8d7da, #f1aeb5); color: #842029; border: 1px solid #f5c2c7; }
+        
+        .result-icon {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-md-9">
+            <div class="prediction-card">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-train-tram me-2"></i> İZBAN Akıllı Tahmin</h3>
+                    <p>Makine Öğrenmesi ile İstasyon Yoğunluk Analizi</p>
+                </div>
+                <div class="card-body p-4">
+                    <form id="predictionForm">
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <label class="form-label">Durak Seçimi</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-location-dot"></i></span>
+                                    <select class="form-select" id="station" required>
+                                        <option value="Alsancak">Alsancak</option>
+                                        <option value="Halkapınar" selected>Halkapınar</option>
+                                        <option value="Karşıyaka">Karşıyaka</option>
+                                        <option value="Menemen">Menemen</option>
+                                        <option value="Çiğli">Çiğli</option>
+                                        <option value="Egekent">Egekent</option>
+                                        <option value="Nergiz">Nergiz</option>
+                                        <option value="Bayraklı">Bayraklı</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Günün Saati (0-23)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-regular fa-clock"></i></span>
+                                    <input type="number" class="form-control" id="time_of_day" min="0" max="23" value="8" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-4 mb-3 mb-md-0">
+                                <label class="form-label">Haftanın Günü</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-regular fa-calendar-days"></i></span>
+                                    <select class="form-select" id="day_of_week" required>
+                                        <option value="0" selected>Pzt</option>
+                                        <option value="1">Sal</option>
+                                        <option value="2">Çar</option>
+                                        <option value="3">Per</option>
+                                        <option value="4">Cum</option>
+                                        <option value="5">Cmt</option>
+                                        <option value="6">Paz</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3 mb-md-0">
+                                <label class="form-label">Sıcaklık (°C)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-temperature-half"></i></span>
+                                    <input type="number" step="0.1" class="form-control" id="heat" value="18.0" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Yağış (mm)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-cloud-rain"></i></span>
+                                    <input type="number" step="0.1" class="form-control" id="rains_mm" value="0.0" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-predict" id="submitBtn">
+                            <span id="btnText"><i class="fa-solid fa-microchip me-2"></i> Yoğunluğu Tahmin Et</span>
+                            <span id="btnSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                        </button>
+                    </form>
+
+                    <div id="resultBox" class="result-box">
+                        <i id="resultIcon" class="result-icon"></i>
+                        <span id="predictionText"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('predictionForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Animasyonlu buton yönetimi
+        const btnText = document.getElementById('btnText');
+        const btnSpinner = document.getElementById('btnSpinner');
+        btnText.classList.add('d-none');
+        btnSpinner.classList.remove('d-none');
+        
+        const day_of_week = parseInt(document.getElementById('day_of_week').value);
+        const weekend = (day_of_week >= 5) ? 1 : 0;
+
+        const payload = {
+            station: document.getElementById('station').value,
+            time_of_day: parseInt(document.getElementById('time_of_day').value),
+            day_of_week: day_of_week,
+            weekend: weekend,
+            heat: parseFloat(document.getElementById('heat').value),
+            rains_mm: parseFloat(document.getElementById('rains_mm').value)
+        };
+
+        try {
+            const response = await fetch('/api/predict/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            
+            const resultBox = document.getElementById('resultBox');
+            const predText = document.getElementById('predictionText');
+            const resultIcon = document.getElementById('resultIcon');
+            
+            resultBox.style.display = 'block';
+            resultBox.className = 'result-box'; // Sınıfları sıfırla
+            
+            if(data.status === 'success') {
+                predText.innerHTML = `Model Çıktısı: <b>${data.prediction}</b>`;
+                
+                if(data.prediction === 'Sakin') {
+                    resultBox.classList.add('sakin');
+                    resultIcon.className = 'result-icon fa-solid fa-mug-hot';
+                } 
+                else if(data.prediction === 'Normal') {
+                    resultBox.classList.add('normal');
+                    resultIcon.className = 'result-icon fa-solid fa-users';
+                } 
+                else {
+                    resultBox.classList.add('yogun');
+                    resultIcon.className = 'result-icon fa-solid fa-users-slash';
+                }
+            } else {
+                predText.innerHTML = `Hata: ${data.message}`;
+                resultIcon.className = 'result-icon fa-solid fa-circle-exclamation';
+                resultBox.classList.add('yogun');
+            }
+        } catch (error) {
+            alert('Sunucuya bağlanılamadı!');
+        } finally {
+            // Butonu eski haline getir
+            btnText.classList.remove('d-none');
+            btnSpinner.classList.add('d-none');
+        }
+    });
+</script>
+</body>
+</html>
